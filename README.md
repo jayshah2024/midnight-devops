@@ -109,4 +109,3 @@ Usage and flags are documented inline and in `scripts/README` / the header comme
   described in `SECURITY.md`, rather than env files.
 - **Alert runbooks:** link each alert to a short remediation doc so on-call has a one-click
   path from page to fix.
-```
