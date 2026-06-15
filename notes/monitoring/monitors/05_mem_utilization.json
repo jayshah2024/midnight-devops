@@ -1,0 +1,14 @@
+{
+  "name": "[Midnight pre-prod] CPU / memory saturation",
+  "type": "query alert",
+  "query": "avg(last_10m):sum:gcp.agent.memory.percent_used{env:preprod,!state:free} by {host} > 90",
+  "message": "{{#is_warning}}@slack-node-ops-alerts\nSustained high memory on {{host.name}} (<10% available for 10m) — OOM risk for the node process. Check `top`/`free -m`; investigate if it persists after initial db-sync.{{/is_warning}}\n{{#is_alert}}@webhook-squadcast Memory critically saturated on {{host.name}} — imminent OOM risk.{{/is_alert}}\n{{#is_recovery}}Memory back to normal on {{host.name}}.{{/is_recovery}}",
+  "tags": ["env:preprod", "service:midnight-node", "team:node-ops", "source:gmp"],
+  "priority": 3,
+  "options": {
+    "thresholds": { "warning": 90, "critical": 96 },
+    "notify_no_data": false,
+    "renotify_interval": 120,
+    "include_tags": true
+  }
+}
