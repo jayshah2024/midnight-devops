@@ -1,0 +1,36 @@
+metrics:
+  receivers:
+    # Scrape the two app endpoints. The Prometheus receiver supports standard scrape_config
+    # (incl. relabeling); the prometheus pipeline writes straight to GMP.
+    midnight_prometheus:
+      type: prometheus
+      config:
+        scrape_configs:
+          - job_name: midnight-node
+            scrape_interval: 30s        # GMP bills per sample; 30s keeps volume/cost sane
+            static_configs:
+              - targets: ['localhost:9615']
+                labels:
+                  component: midnight-node
+          - job_name: cardano-node
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['localhost:12798']
+                labels:
+                  component: cardano-node
+  service:
+    pipelines:
+      # A prometheus-receiver pipeline may only contain the prometheus receiver (no processors).
+      prometheus_pipeline:
+        receivers: [midnight_prometheus]
+
+logging:
+  receivers:
+    # Ship the three services' journald logs to Cloud Logging (one place to correlate with
+    # the metrics; Datadog can also pull logs if desired).
+    node_services:
+      type: systemd_journald
+  service:
+    pipelines:
+      node_services_pipeline:
+        receivers: [node_services]
