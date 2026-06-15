@@ -1,0 +1,15 @@
+{
+  "name": "[Midnight pre-prod] Node down (no metrics)",
+  "type": "query alert",
+  "query": "max(last_5m):avg:gcp.prometheus.up{env:preprod,job:midnight-node} by {host} < 1",
+  "message": "{{#is_alert}}\n@webhook-squadcast\nmidnight-node is down on {{host.name}} — its scrape target is failing (process down or metrics port unreachable), so no samples are reaching GMP/Datadog.\nInspect `journalctl -u midnight-node -n 200` for the cause BEFORE restarting.\n{{/is_alert}}\n{{#is_no_data}}@webhook-squadcast No data from midnight-node on {{host.name}} for 10m — process or the GMP export pipeline is down.{{/is_no_data}}\n{{#is_recovery}}midnight-node reporting again on {{host.name}}.{{/is_recovery}}",
+  "tags": ["env:preprod", "service:midnight-node", "team:node-ops", "source:gmp"],
+  "priority": 1,
+  "options": {
+    "thresholds": { "critical": 1 },
+    "notify_no_data": true,
+    "no_data_timeframe": 10,
+    "renotify_interval": 30,
+    "include_tags": true
+  }
+}
