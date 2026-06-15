@@ -1,0 +1,15 @@
+{
+  "name": "[Midnight pre-prod] Block height halt",
+  "type": "query alert",
+  "query": "min(last_10m):derivative(avg:gcp.prometheus.substrate_block_height{env:preprod,status:best} by {host}) <= 0",
+  "message": "{{#is_alert}}\n@webhook-squadcast\nBest-block height has NOT advanced for ~10m on {{host.name}}. Node is up but not following the chain.\nTriage: 1) peer count monitor  2) cardano-db-sync lag  3) `journalctl -u midnight-node`. Restart only if wedged with healthy inputs.\n{{/is_alert}}\n{{#is_recovery}}Block height advancing again on {{host.name}}.{{/is_recovery}}",
+  "tags": ["env:preprod", "service:midnight-node", "team:node-ops", "source:gmp"],
+  "priority": 1,
+  "options": {
+    "thresholds": { "critical": 0 },
+    "notify_no_data": true,
+    "no_data_timeframe": 15,
+    "renotify_interval": 30,
+    "include_tags": true
+  }
+}
